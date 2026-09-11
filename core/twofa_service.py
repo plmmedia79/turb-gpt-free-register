@@ -148,6 +148,8 @@ def enqueue_account_totp_setup(
             proxy=proxy,
             trigger=str(trigger or "manual"),
         )
+        from core.smsbower_aliases import track_future
+        track_future(email, future)
         return {"accepted": True, "busy": False, "future": future, "log_path": str(log_path(email))}
     except Exception as exc:
         _QUEUE_SLOTS.release()

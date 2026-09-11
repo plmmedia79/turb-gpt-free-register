@@ -1,5 +1,15 @@
 # Turb GPT Free Register
 
+## Ngôn ngữ giao diện / 界面语言
+
+WebUI hỗ trợ **Tiếng Việt** và **中文**, bao gồm trang đăng nhập, giao diện mới và giao diện cũ. Chọn ngôn ngữ tại mục **Ngôn ngữ / 语言**; lựa chọn được lưu trong cookie của trình duyệt và giữ nguyên sau khi đăng nhập hoặc tải lại trang. Khi chưa chọn, giao diện mặc định là tiếng Việt. Chuyển ngôn ngữ sẽ tải lại trang, vì vậy hãy lưu cấu hình đang sửa trước khi chuyển.
+
+WebUI 支持越南语和中文，覆盖登录页、新版和旧版界面。在“Ngôn ngữ / 语言”中切换，浏览器会记住选择；首次访问默认为越南语。切换语言会重新加载页面，请先保存正在编辑的配置。
+
+Tên cấu hình, giá trị kỹ thuật, dữ liệu tài khoản và nhật ký gốc được giữ nguyên. Bản dịch chỉ thay đổi cách hiển thị; không thay đổi quy trình đăng ký hay dữ liệu API. Xem [hướng dẫn bổ sung bản dịch](docs/webui-languages.md).
+
+---
+
 ChatGPT / OpenAI 账号自动注册与 Codex OAuth 授权工具。当前项目支持三套注册驱动：
 
 - **protocol**：原纯协议注册，基于 `curl_cffi` + Sentinel/PoW。
@@ -39,6 +49,18 @@ ChatGPT / OpenAI 账号自动注册与 Codex OAuth 授权工具。当前项目�
   - `about-you/profile` 页面输入年月日生日；
   - React Aria birthday select / spinbutton 年月日控件；
   - 不同出口 IP / 不同页面语言下按钮顺序变化导致的三方登录误点问题。
+
+### SMSBower
+
+Trong **Cấu hình → Email / Mã xác minh**, bật dịch vụ email, đặt `EMAIL_SOURCE` thành `smsbower` (hoặc thêm vào danh sách nguồn) và nhập **Khóa API SMSBower**, rồi lưu. Trong tab SMSBower có dòng **Nguồn email cho job** và nút **Dùng SMSBower cho job**; bấm nút này rồi lưu để đổi nguồn và bật dịch vụ email. Chỉ lưu API key hoặc loại email không tự đổi nguồn. Không cần nhập URL API. WebUI lưu key vào `.env` và nạp lại cấu hình.
+
+Chọn **Loại email SMSBower → Gmail / iCloud** ngay dưới mục SMSBower rồi lưu. Lựa chọn mới chỉ áp dụng cho email được lấy sau đó.
+
+Mỗi lần thuê SMSBower được dùng cho tối đa **2 địa chỉ `+tag`** khi đăng ký (WebUI và CLI), ví dụ `mail+abc123@icloud.com` rồi `mail+def456@icloud.com`. Không đăng ký bằng địa chỉ gốc. WebUI chia batch thành từng nhóm 2 job: mỗi nhóm dùng một activation và đợi cả TOTP nền của tag trước hoàn tất; các nhóm độc lập chạy song song theo số worker (100 job → 50 nhóm, trừ trường hợp phải thuê lại do lỗi/hết hạn). CLI dùng activation riêng theo worker; tối đa **5 mã OTP tổng cộng**, không phải 5 mã mỗi alias. Job thất bại, TOTP thất bại, thiếu ngân sách OTP hoặc còn dưới 225 giây thì không dùng tiếp activation đó. Số job nhập vẫn là số tài khoản, không phải số lần thuê.
+
+Nhóm chỉ tồn tại trong tiến trình hiện tại; khởi động lại không khôi phục email đã thuê. Các tác vụ đổi email dùng activation riêng. API không có người nhận hoặc timestamp, nên dù đã chạy tuần tự và yêu cầu mã mới, email đến trễ vẫn có thể gây xác minh thất bại.
+
+SMSBower mua loại email đã chọn cho dịch vụ ChatGPT (`dr`), nhận mã qua [mail API chính thức](https://smsbower.app/api/?page=mails). Mỗi lần cấp email có thể phát sinh phí. Email chỉ dùng trong phiên kích hoạt khoảng 20 phút; ứng dụng giới hạn 18 phút. Không hỗ trợ nhận lại OTP sau khi WebUI khởi động lại hoặc phiên hết hạn.
 
 ### 邮箱来源
 

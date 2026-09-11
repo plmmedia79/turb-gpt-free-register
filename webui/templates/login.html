@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="{{ ui_lang }}">
 <head>
+{% include 'i18n-head.html' %}
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GPT Registrator · 授权码登录</title>
+  <title>{{ tr("GPT Registrator · 授权码登录") }}</title>
   <style>
     * { box-sizing: border-box; }
 
@@ -281,18 +282,19 @@
       <span class="brand-title">GPT Registrator</span>
     </div>
 
+    {% include 'language-switch.html' %}
     <form class="card" method="post" action="{{ login_url }}">
-      <h1>授权码登录</h1>
-      <p class="desc">请输入启动命令或配置文件中设置的授权码</p>
-      {% if error %}<div class="err">{{ error }}</div>{% endif %}
+      <h1>{{ tr("授权码登录") }}</h1>
+      <p class="desc">{{ tr("请输入启动命令或配置文件中设置的授权码") }}</p>
+      {% if error %}<div class="err">{{ tr(error) }}</div>{% endif %}
 
       <div class="field">
         <div class="input-wrap">
           <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
           </svg>
-          <input id="authCodeInput" name="auth_code" type="password" autocomplete="current-password" autofocus placeholder="请输入授权码">
-          <button class="toggle-password" id="togglePassword" type="button" aria-label="显示授权码" title="显示/隐藏">
+          <input id="authCodeInput" name="auth_code" type="password" autocomplete="current-password" autofocus placeholder="{{ tr("请输入授权码") }}">
+          <button class="toggle-password" id="togglePassword" type="button" aria-label="{{ tr("显示授权码") }}" title="{{ tr("显示/隐藏") }}">
             <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
               <circle cx="12" cy="12" r="3"/>
@@ -307,12 +309,12 @@
         </div>
         <label class="remember">
           <input id="rememberAuthCode" name="remember" type="checkbox" value="1">
-          记住授权码
+          {{ tr("记住授权码") }}
         </label>
       </div>
 
       <input name="next" type="hidden" value="{{ next_url }}">
-      <button class="submit" type="submit">登录</button>
+      <button class="submit" type="submit">{{ tr("登录") }}</button>
     </form>
   </div>
 
@@ -332,7 +334,7 @@
         const show = input.type === 'password';
         input.type = show ? 'text' : 'password';
         toggle.classList.toggle('is-visible', show);
-        toggle.setAttribute('aria-label', show ? '隐藏授权码' : '显示授权码');
+        toggle.setAttribute('aria-label', show ? t("隐藏授权码") : t("显示授权码"));
       });
 
       document.querySelectorAll('.bg-dots').forEach((grid) => {

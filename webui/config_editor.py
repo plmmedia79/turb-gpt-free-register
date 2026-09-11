@@ -319,11 +319,22 @@ EDITABLE_FIELDS = [
     },
     {
         "key": "EMAIL_SOURCE", "file": "email.py", "type": "str", "group": "邮箱 / OTP",
-        "label": "邮箱来源", "help": "可填单个或多个，逗号分隔并按顺序兜底：outlook,generic_api,imap,cloudflare_domain,cloudflare,gptmail,mailnest,cloudmail,remail",
+        "label": "邮箱来源", "help": "可填单个或多个，逗号分隔并按顺序兜底：outlook,generic_api,imap,cloudflare_domain,cloudflare,gptmail,mailnest,cloudmail,remail,smsbower",
     },
     {
         "key": "IMAP_MAILBOX", "file": "email.py", "type": "str", "group": "邮箱 / OTP",
         "label": "通用 IMAP 收件箱", "help": "通用 IMAP 邮箱默认目录，通常为 INBOX；服务器、端口、用户名和密码在邮箱池导入",
+    },
+    {
+        "key": "SMSBOWER_DOMAIN", "file": "email.py", "type": "str", "group": "邮箱 / OTP",
+        "label": "SMSBower 邮箱类型", "help": "选择 Gmail 或 iCloud；保存后用于新申请的邮箱",
+        "options": [{"value": "gmail.com", "label": "Gmail"}, {"value": "icloud.com", "label": "iCloud"}],
+        "storage": "env",
+    },
+    {
+        "key": "SMSBOWER_API_KEY", "file": "email.py", "type": "str", "group": "邮箱 / OTP",
+        "label": "SMSBower API Key", "help": "选择 smsbower 邮箱来源时必填；一次租用最多两个 +tag，合计五个 OTP；保存在 .env",
+        "storage": "env", "secret": True,
     },
     {
         "key": "GPTMAIL_API_KEY", "file": "email.py", "type": "str", "group": "邮箱 / OTP",
@@ -1017,6 +1028,8 @@ def update_config(updates: dict) -> dict:
         if field is None:
             ignored.append(key)
             continue
+        if field.get("options") and value not in {option["value"] for option in field["options"]}:
+            raise ValueError(f"{key}: invalid selection")
         env_updates[key] = _format_env_value(value, field["type"])
         updated.append(key)
 

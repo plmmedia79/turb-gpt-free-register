@@ -164,6 +164,26 @@ def run_registration(
     batch_dir=None,
     on_email_acquired: Callable[[str], None] | None = None,
 ):
+    from core.smsbower_aliases import registration_scope
+    with registration_scope() as outcome:
+        result = _run_registration(
+            email=email, name=name, birthday=birthday, proxy=proxy,
+            otp_code=otp_code, batch_dir=batch_dir,
+            on_email_acquired=on_email_acquired,
+        )
+        outcome['success'] = isinstance(result, dict) and bool(result.get('success'))
+        return result
+
+
+def _run_registration(
+    email: str | None,
+    name: str,
+    birthday: str | None = None,
+    proxy: str = None,
+    otp_code: str = None,
+    batch_dir=None,
+    on_email_acquired: Callable[[str], None] | None = None,
+):
     """
     执行完整的 ChatGPT 注册流程（OTP-only，无密码）。
 

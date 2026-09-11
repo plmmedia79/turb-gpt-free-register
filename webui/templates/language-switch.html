@@ -1,0 +1,7 @@
+<label class="language-switch">
+  <span>{{ tr('语言') }}</span>
+  <select aria-label="{{ tr('界面语言') }}" onchange="setUiLanguage(this.value)">
+    <option value="vi"{% if ui_lang == 'vi' %} selected{% endif %}>Tiếng Việt</option>
+    <option value="zh-CN"{% if ui_lang == 'zh-CN' %} selected{% endif %}>中文</option>
+  </select>
+</label>

@@ -1,0 +1,27 @@
+.language-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.language-switch select {
+  min-width: 105px;
+  max-width: 160px;
+  padding: 6px 8px;
+  border: 1px solid #d6dce8;
+  border-radius: 7px;
+  background: #fff;
+  color: #25314c;
+  font: inherit;
+}
+.language-switch > span { white-space: nowrap; }
+.app-sidebar .language-switch { padding-left: 0; padding-right: 0; }
+html[lang="vi"] .sidebar-item-label { line-height: 1.35; }
+html[lang="vi"] button { white-space: normal; }
+html[lang="vi"] .jobs-v2-pager .pager-size-btn {
+  min-width: 125px;
+  white-space: nowrap;
+}

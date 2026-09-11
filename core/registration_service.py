@@ -440,6 +440,21 @@ def _run_codex_retry_job(job_id: int, log_file: str, email: str, account_id: int
 # 公共接口
 # ============================================================
 
+def _run_smsbower_pair(jobs):
+    from core.smsbower_aliases import group_scope
+    with group_scope():
+        for job in jobs:
+            try:
+                _run_one_job(job['id'], job['log_file'])
+            except Exception:
+                logger.exception('[Service] Job %s lỗi ngoài handler; tiếp tục job còn lại', job['id'])
+                _deactivate_job(job['id'])
+                try:
+                    db.update_job(job['id'], status='failed', error='Unexpected job runner failure; see server log', completed_at=datetime.now().isoformat(timespec='seconds'))
+                except Exception:
+                    logger.exception('[Service] Không ghi được trạng thái job %s', job['id'])
+
+
 def submit_registration(count: int = 1, email_source: str | None = None, workers: int | None = None) -> list[dict]:
     """
     创建 N 个注册任务并提交到线程池。
@@ -457,20 +472,26 @@ def submit_registration(count: int = 1, email_source: str | None = None, workers
     with _executor_lock:
         executor = get_executor(max_workers=workers)
         effective_workers = get_executor_workers()
-        jobs = []
-        for _ in range(count):
-            job = db.create_job(email_source=email_source)
+        from core.email_provider import parse_email_sources
+        use_groups = 'smsbower' in parse_email_sources(email_source)
+        jobs = [db.create_job(email_source=email_source) for _ in range(count)]
+        group_size = 2 if use_groups else 1
+        for offset in range(0, len(jobs), group_size):
+            group = jobs[offset:offset + group_size]
             try:
-                executor.submit(_run_one_job, job["id"], job["log_file"])
+                if use_groups:
+                    executor.submit(_run_smsbower_pair, group)
+                else:
+                    executor.submit(_run_one_job, group[0]['id'], group[0]['log_file'])
             except Exception as exc:
-                db.update_job(
-                    int(job["id"]),
-                    status="failed",
-                    error=f"队列提交失败：{type(exc).__name__}: {exc}"[:500],
-                    completed_at=datetime.now().isoformat(timespec="seconds"),
-                )
-                logger.exception("[Service] 注册任务 #%s 提交线程池失败", job["id"])
-            jobs.append(db.get_job(int(job["id"])) or job)
+                for job in group:
+                    db.update_job(
+                        int(job['id']), status='failed',
+                        error=f'队列提交失败：{type(exc).__name__}: {exc}'[:500],
+                        completed_at=datetime.now().isoformat(timespec='seconds'),
+                    )
+                logger.exception('[Service] Không gửi được nhóm job vào hàng đợi')
+        jobs = [db.get_job(int(job['id'])) or job for job in jobs]
     logger.info(f"[Service] 已提交 {count} 个注册任务，源={email_source}，workers={effective_workers}")
     return jobs
 
